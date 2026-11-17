@@ -205,7 +205,7 @@
           id="start-controls-hint"
           class="text-[11px] font-mono-numbers text-slate-400 tracking-wider bg-black/50 border border-slate-800/80 px-3 py-2 rounded-sm"
         >
-          WASD Move · Shift Sprint · C/Ctrl Crouch · Space Jump · RMB ADS · LMB Fire · R Reload · Y Inspect · T Light · 1/2/3/Q Swap · F Bullet-Time · P/Esc Pause
+          WASD Move · Shift Sprint · C/Ctrl Crouch · Space Jump · RMB ADS · LMB Fire · R Reload · Y Inspect · T Light · E Revive Wolf · 1/2/3/Q Swap · F Bullet-Time · P/Esc Pause
         </div>
       </div>
     </section>
@@ -216,9 +216,9 @@
       class="screen-overlay fixed inset-0 z-20 flex flex-col justify-between p-3 sm:p-5 pointer-events-none"
     >
       <!-- TOP BAR -->
-      <header class="w-full flex items-start justify-between gap-2">
+      <header class="relative z-[30] w-full flex items-start justify-between gap-2 pointer-events-none">
         <!-- Top Left Controls -->
-        <div class="flex items-center gap-2 pointer-events-auto flex-wrap">
+        <div id="hud-top-actions" class="relative z-[31] flex items-center gap-2 pointer-events-auto flex-wrap">
           <button
             id="sfx-toggle-btn"
             type="button"
@@ -522,37 +522,70 @@
         </div>
       </div>
 
-      <!-- FOOTER: HEALTH (LEFT), BULLET-TIME (CENTER), AMMO (RIGHT) -->
+      <!-- DIRE WOLF DOWNED REVIVE PROMPT -->
+      <button
+        id="wolf-revive-prompt"
+        type="button"
+        class="hidden fixed bottom-32 sm:bottom-44 left-1/2 -translate-x-1/2 z-[28] pointer-events-auto cursor-pointer tac-panel bg-red-950/90 hover:bg-red-900/95 border-2 border-amber-400 px-4 py-2 rounded-sm shadow-[0_0_28px_rgba(245,158,11,0.55)] flex items-center gap-2.5 transition-all active:scale-95"
+      >
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+        <span id="wolf-revive-prompt-text" class="font-mono-numbers text-xs sm:text-sm font-bold text-amber-200 tracking-wider uppercase whitespace-nowrap">
+          WOLF DOWNED - Press [E] near wolf to Revive
+        </span>
+      </button>
+
+      <!-- FOOTER: HEALTH + DIRE WOLF (LEFT), BULLET-TIME (CENTER), AMMO (RIGHT) -->
       <footer class="w-full flex items-end justify-between gap-2 z-[26]">
-        <div id="hud-health-panel" class="tac-panel p-2.5 sm:p-4 rounded-sm w-44 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.85)] pointer-events-none">
-          <div class="flex items-center justify-between mb-1.5">
-            <div class="flex items-center gap-2">
-              <div class="vitals-icon-box w-5 h-5 sm:w-6 sm:h-6 bg-red-600 rounded-xs flex items-center justify-center">
-                <svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24">
-                  <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z" />
-                </svg>
+        <div class="flex flex-row lg:flex-col-reverse items-end lg:items-start gap-1.5 sm:gap-2 pointer-events-none">
+          <div id="hud-health-panel" class="tac-panel p-2.5 sm:p-4 rounded-sm w-44 sm:w-72 shadow-[0_10px_30px_rgba(0,0,0,0.85)] pointer-events-none">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <div class="vitals-icon-box w-5 h-5 sm:w-6 sm:h-6 bg-red-600 rounded-xs flex items-center justify-center">
+                  <svg class="w-3.5 h-3.5 text-white fill-current" viewBox="0 0 24 24">
+                    <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z" />
+                  </svg>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">VITALS</span>
+                  <span id="vitals-status-label" class="text-[10px] sm:text-xs font-bold text-slate-200 tracking-wider">OPTIMAL</span>
+                </div>
               </div>
-              <div class="flex flex-col">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">VITALS</span>
-                <span id="vitals-status-label" class="text-[10px] sm:text-xs font-bold text-slate-200 tracking-wider">OPTIMAL</span>
+              <div class="flex items-baseline gap-1">
+                <span id="hp-value" class="font-mono-numbers text-2xl sm:text-3xl font-bold text-red-500 leading-none">100</span>
+                <span class="text-[10px] sm:text-xs font-mono-numbers text-slate-500 font-bold">/ 100</span>
               </div>
             </div>
-            <div class="flex items-baseline gap-1">
-              <span id="hp-value" class="font-mono-numbers text-2xl sm:text-3xl font-bold text-red-500 leading-none">100</span>
-              <span class="text-[10px] sm:text-xs font-mono-numbers text-slate-500 font-bold">/ 100</span>
+            <div id="hp-segments-bar" class="w-full bg-slate-950 h-2.5 sm:h-3 p-0.5 rounded-sm border border-slate-700/60 flex gap-0.5">
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
+              <div class="flex-1 bg-red-600 h-full"></div>
             </div>
           </div>
-          <div id="hp-segments-bar" class="w-full bg-slate-950 h-2.5 sm:h-3 p-0.5 rounded-sm border border-slate-700/60 flex gap-0.5">
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
-            <div class="flex-1 bg-red-600 h-full"></div>
+
+          <div id="hud-wolf-panel" class="tac-panel p-2 sm:p-3 rounded-sm w-36 sm:w-56 lg:w-72 border border-cyan-500/45 shadow-[0_8px_24px_rgba(0,0,0,0.85)] pointer-events-none">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <span id="wolf-hud-badge" class="w-4 h-4 rounded-xs bg-cyan-950 border border-cyan-400/80 flex items-center justify-center text-[9px] font-bold text-cyan-300">W</span>
+                <div class="flex flex-col leading-none">
+                  <span class="text-[8px] sm:text-[9px] font-bold text-cyan-400 uppercase tracking-widest">DIRE WOLF</span>
+                  <span id="wolf-status-label" class="text-[9px] sm:text-[10px] font-mono-numbers font-bold text-slate-200 tracking-wider">GUARDING</span>
+                </div>
+              </div>
+              <div class="flex items-baseline gap-0.5">
+                <span id="wolf-hp-value" class="font-mono-numbers text-sm sm:text-lg font-bold text-cyan-300 leading-none">150</span>
+                <span id="wolf-hp-max" class="text-[9px] sm:text-[10px] font-mono-numbers text-slate-500 font-bold">/ 150</span>
+              </div>
+            </div>
+            <div class="w-full bg-slate-950 h-2 p-[1px] rounded-sm border border-cyan-900/60 overflow-hidden">
+              <div id="wolf-hp-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-150" style="width: 100%"></div>
+            </div>
           </div>
         </div>
 
@@ -591,7 +624,7 @@
             </div>
           </div>
           <span class="bg-slate-950/90 px-3 py-0.5 rounded-xs border border-slate-800 text-[9px] font-mono-numbers text-slate-400 tracking-widest text-center">
-            WASD Move · Shift Sprint · C/Ctrl Crouch · Space Jump · RMB ADS · R Reload · Y Inspect · T Light · F Bullet-Time
+            WASD Move · Shift Sprint · C/Ctrl Crouch · Space Jump · RMB ADS · R Reload · Y Inspect · T Light · E Revive · F Bullet-Time
           </span>
         </div>
 
@@ -627,7 +660,7 @@
       id="armory-modal"
       class="screen-overlay fixed inset-0 z-25 bg-black/85 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
     >
-      <div class="modal-card max-w-2xl w-full tac-panel p-5 sm:p-7 rounded-sm border border-amber-500/60 shadow-[0_0_60px_rgba(245,158,11,0.2)] relative">
+      <div class="modal-card max-w-2xl w-full tac-panel p-5 sm:p-7 rounded-sm border border-amber-500/60 shadow-[0_0_60px_rgba(245,158,11,0.2)] relative max-h-[92vh] overflow-y-auto">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
             <div id="armory-wave-cleared" class="text-xs font-mono-numbers text-emerald-400 font-bold uppercase tracking-widest">
@@ -752,8 +785,91 @@
           </div>
         </div>
 
+        <!-- DIRE WOLF COMPANION UPGRADES -->
+        <div class="border-t border-slate-800 pt-3 mt-1 mb-3">
+          <div class="flex items-center justify-between gap-2 mb-2.5">
+            <div>
+              <div class="text-xs font-heavy tracking-wider text-cyan-400 font-bold uppercase leading-none">
+                DIRE WOLF COMPANION UPGRADES
+              </div>
+              <div id="armory-wolf-vitals" class="text-[10px] font-mono-numbers text-slate-300 mt-0.5">
+                HP: 150 / 150 · STATUS: ACTIVE
+              </div>
+            </div>
+            <button
+              id="btn-wolf-heal"
+              type="button"
+              class="px-3 py-1.5 rounded-sm bg-cyan-950 hover:bg-cyan-900 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed border border-cyan-400/60 text-cyan-200 text-xs font-mono-numbers font-bold cursor-pointer transition-colors whitespace-nowrap"
+            >
+              Wolf Full HP · 80 PTS
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="bg-slate-900/95 border border-cyan-900/60 p-3 rounded-sm flex flex-col justify-between gap-2.5">
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono-numbers">
+                  <span class="text-red-400 font-bold uppercase">Bite Damage</span>
+                  <span id="wolf-upgrade-dmg-level" class="text-slate-400">LVL 0 / 5</span>
+                </div>
+                <div id="wolf-upgrade-dmg-value" class="font-mono-numbers text-sm font-bold text-slate-100 mt-1">
+                  55 → 70 DMG
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">+15 fang damage per bite</p>
+              </div>
+              <button
+                id="btn-wolf-upgrade-dmg"
+                type="button"
+                class="w-full py-1.5 px-2.5 rounded-sm bg-red-700 hover:bg-red-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-mono-numbers text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors"
+              >
+                Upgrade · 140 PTS
+              </button>
+            </div>
+
+            <div class="bg-slate-900/95 border border-cyan-900/60 p-3 rounded-sm flex flex-col justify-between gap-2.5">
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono-numbers">
+                  <span class="text-emerald-400 font-bold uppercase">Max Health</span>
+                  <span id="wolf-upgrade-hp-level" class="text-slate-400">LVL 0 / 5</span>
+                </div>
+                <div id="wolf-upgrade-hp-value" class="font-mono-numbers text-sm font-bold text-slate-100 mt-1">
+                  150 → 190 HP
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">+40 max HP &amp; restores +40</p>
+              </div>
+              <button
+                id="btn-wolf-upgrade-hp"
+                type="button"
+                class="w-full py-1.5 px-2.5 rounded-sm bg-emerald-700 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-mono-numbers text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors"
+              >
+                Upgrade · 140 PTS
+              </button>
+            </div>
+
+            <div class="bg-slate-900/95 border border-cyan-900/60 p-3 rounded-sm flex flex-col justify-between gap-2.5">
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono-numbers">
+                  <span class="text-cyan-400 font-bold uppercase">Agility &amp; Ferocity</span>
+                  <span id="wolf-upgrade-agility-level" class="text-slate-400">LVL 0 / 5</span>
+                </div>
+                <div id="wolf-upgrade-agility-value" class="font-mono-numbers text-sm font-bold text-slate-100 mt-1">
+                  8.8m/s · 1.00s
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">+Speed &amp; faster bite CD</p>
+              </div>
+              <button
+                id="btn-wolf-upgrade-agility"
+                type="button"
+                class="w-full py-1.5 px-2.5 rounded-sm bg-cyan-700 hover:bg-cyan-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-mono-numbers text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors"
+              >
+                Upgrade · 140 PTS
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div id="armory-feedback" class="text-xs font-mono-numbers text-amber-300 min-h-[18px] mb-3">
-          Select a weapon and spend kill credits before deploying the next wave.
+          Select a weapon or Dire Wolf upgrade before deploying the next wave.
         </div>
 
         <button
@@ -835,6 +951,15 @@
               <button id="btn-quality-low" type="button" class="quality-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">LOW</button>
               <button id="btn-quality-med" type="button" class="quality-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">MED</button>
               <button id="btn-quality-high" type="button" class="quality-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">HIGH</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <span class="text-[10px] font-mono-numbers text-slate-300 uppercase">PREVIEW MODE</span>
+            <div class="flex items-center gap-1">
+              <button id="btn-profile-auto" type="button" class="profile-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">AUTO</button>
+              <button id="btn-profile-mobile" type="button" class="profile-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">MOBILE</button>
+              <button id="btn-profile-desktop" type="button" class="profile-btn px-2 py-0.5 rounded-xs text-[10px] font-mono-numbers font-bold border border-slate-700 bg-slate-950 text-slate-300 cursor-pointer">DESKTOP</button>
             </div>
           </div>
 
