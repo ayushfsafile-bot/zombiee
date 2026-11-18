@@ -1,16 +1,19 @@
+import gunshotAudioUrl from '../../shoot.mp3?url';
+import reloadAudioUrl from '../../reload.mp3?url';
+import zombieAudioUrl from '../../zombie.mp3?url';
 import type { WeaponKey } from './types';
 
 // ============================================================================
-// CUSTOM AUDIO URL CONSTANTS — Paste direct URLs or local filenames here
+// CUSTOM AUDIO URL CONSTANTS — Local project assets (zero external audio URLs)
 // ============================================================================
-export const GUNSHOT_AUDIO_URL = 'https://file.garden/avaubS0ShqQb7IVS/shoot.mp3';
-export const RELOAD_AUDIO_URL = 'https://file.garden/avaubS0ShqQb7IVS/reload.mp3';
-export const ZOMBIE_AUDIO_URL = 'https://file.garden/avaubS0ShqQb7IVS/zombie.mp3';
-export const RUN_AUDIO_URL = 'https://file.garden/avaubS0ShqQb7IVS/run.mp3';
+export const GUNSHOT_AUDIO_URL = gunshotAudioUrl;
+export const RELOAD_AUDIO_URL = reloadAudioUrl;
+export const ZOMBIE_AUDIO_URL = zombieAudioUrl;
+export const RUN_AUDIO_URL = '';
 export const BREATH_AUDIO_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/Running-Heavy-Breathing-Sound.mp3';
+  '/YTDown.com_Shorts_Media_0f9D6S2K5JI_Running-Heavy-Breathing-Sound-Effect-Chase-SFX_009_128k.mp3';
 export const WOLF_BITE_SOUND_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/YTDown.com_YouTube_Media_BHKsvEvgltE_Multiple-carnivores-eating-sound-effect_008_128k.mp3';
+  '/YTDown.com_YouTube_Media_BHKsvEvgltE_Multiple-carnivores-eating-sound-effect_008_128k.mp3';
 
 export type ZombieGroanKind = 'normal' | 'screamer' | 'boss';
 
