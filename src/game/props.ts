@@ -25,18 +25,12 @@ export const PROP_URLS = {
     'https://file.garden/avaubS0ShqQb7IVS/simple_industrial_onoff_switch.glb',
   electricalEnvironment:
     'https://file.garden/avaubS0ShqQb7IVS/simple_electrical_environment.glb',
-  lowPolyContainer:
-    'https://file.garden/avaubS0ShqQb7IVS/simple_low_poly_ship_container.glb',
-  damagedRoadblock:
-    'https://file.garden/avaubS0ShqQb7IVS/damaged_roadblock_01.glb',
-  apocalypticContainer:
-    'https://file.garden/avaubS0ShqQb7IVS/post_apocalytpic_style_container.glb',
-  woodenBarricade:
-    'https://file.garden/avaubS0ShqQb7IVS/wooden_barricade.glb',
-  guardRail:
-    'https://file.garden/avaubS0ShqQb7IVS/guard_rail.glb',
-  lowPolyBarricade:
-    'https://file.garden/avaubS0ShqQb7IVS/barricade_low_polly.glb',
+  lowPolyContainer: '/simple_low_poly_ship_container.glb',
+  damagedRoadblock: '/damaged_roadblock_01.glb',
+  apocalypticContainer: '/post_apocalytpic_style_container.glb',
+  woodenBarricade: '/wooden_barricade.glb',
+  guardRail: '/guard_rail.glb',
+  lowPolyBarricade: '/barricade_low_polly.glb',
 } as const;
 
 export interface PropPackResult {
@@ -132,7 +126,7 @@ function loadGlbWithFallback(
   loader: GLTFLoader,
   url: string,
   createFallback: () => THREE.Group,
-  timeoutMs = 20000,
+  timeoutMs = 60000,
 ): Promise<THREE.Group> {
   return new Promise((resolve) => {
     let settled = false;
@@ -144,12 +138,22 @@ function loadGlbWithFallback(
     };
 
     const timer = window.setTimeout(() => {
+      console.warn(`[Props] Timed out loading GLB after ${timeoutMs}ms: ${url}`);
       finish(createFallback());
     }, timeoutMs);
 
-    fetch(url, { mode: 'cors', credentials: 'omit' })
+    const isExternalUrl = /^https?:\/\//i.test(url);
+    const fetchOpts: RequestInit = isExternalUrl
+      ? { mode: 'cors', credentials: 'omit' }
+      : { credentials: 'same-origin' };
+
+    fetch(url, fetchOpts)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const contentType = (res.headers.get('content-type') || '').toLowerCase();
+        if (contentType.includes('text/html')) {
+          throw new Error(`Unexpected HTML response (${contentType})`);
+        }
         return res.arrayBuffer();
       })
       .then((buf) => {
@@ -162,10 +166,14 @@ function loadGlbWithFallback(
           buf,
           '',
           (gltf) => finish(gltf.scene),
-          () => finish(createFallback()),
+          (err) => {
+            console.warn(`[Props] Failed to parse GLB ${url}:`, err);
+            finish(createFallback());
+          },
         );
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn(`[Props] Failed to load GLB ${url}:`, err);
         finish(createFallback());
       });
   });
@@ -630,12 +638,13 @@ export async function loadAndIntegrateProps(
     cullDummy.visible = false;
 
     lod.addLevel(detailModel, 0);
-    lod.addLevel(proxyObj, 32);
-    lod.addLevel(cullDummy, 110);
+    lod.addLevel(proxyObj, 48);
+    lod.addLevel(cullDummy, 140);
     lod.matrixAutoUpdate = false;
     lod.updateMatrix();
 
     holder.add(lod);
+    holder.updateMatrixWorld(true);
     attachPrimitiveRaycastProxies(
       holder,
       meta.parts,
@@ -1057,8 +1066,8 @@ export async function loadAndIntegrateProps(
       mat.envMapIntensity = targetEnv;
     }
 
-    const detailDist = mobilePreview ? 14 : quality === 'LOW' ? 18 : quality === 'MED' ? 28 : 40;
-    const cullDist = mobilePreview ? 44 : quality === 'LOW' ? 56 : quality === 'MED' ? 88 : 136;
+    const detailDist = mobilePreview ? 34 : quality === 'LOW' ? 38 : quality === 'MED' ? 52 : 72;
+    const cullDist = mobilePreview ? 68 : quality === 'LOW' ? 76 : quality === 'MED' ? 105 : 150;
     const castShadows = !isSoftwareGl && !mobilePreview && quality === 'HIGH';
 
     for (let i = 0; i < lodEntries.length; i++) {

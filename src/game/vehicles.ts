@@ -18,14 +18,10 @@ import {
 } from './performance';
 import type { GraphicsQuality } from './types';
 
-export const MILITARY_AMBULANCE_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/retextured_m725_military_ambulance.glb';
-export const WRECKED_M725_AMBULANCE_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/m725_military_ambulance.glb';
-export const CIVILIAN_AMBULANCE_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/shvan_92_ambulance_-_low_poly_model.glb';
-export const BURNED_POLICE_URL =
-  'https://file.garden/avaubS0ShqQb7IVS/free_burned_police_cars.glb';
+export const MILITARY_AMBULANCE_URL = '/retextured_m725_military_ambulance.glb';
+export const WRECKED_M725_AMBULANCE_URL = '/m725_military_ambulance.glb';
+export const CIVILIAN_AMBULANCE_URL = '/shvan_92_ambulance_-_low_poly_model.glb';
+export const BURNED_POLICE_URL = '/free_burned_police_cars.glb';
 
 const SHARED_VEHICLE_PROXY_MAT = new THREE.MeshBasicMaterial({ visible: false });
 

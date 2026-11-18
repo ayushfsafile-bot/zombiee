@@ -15,7 +15,7 @@ export { MENU_SHOWCASE_WEAPON_ASSETS, WEAPON_CONFIGS, WEAPON_ORDER };
 export const GUN_POS = new THREE.Vector3(0, 0, 0);
 
 export const ZOMBIE_TARGET_HEIGHT = 1.85;
-export const DIRE_WOLF_URL = 'https://file.garden/avaubS0ShqQb7IVS/Dire_Wolf_Lite.glb';
+export const DIRE_WOLF_URL = '/Dire_Wolf_Lite.glb';
 export const DIRE_WOLF_TARGET_HEIGHT = 1.08;
 
 export const ZOMBIE_ASSET_SOURCES: Record<ZombieArchetype, { label: string; urls: string[] }> = {
